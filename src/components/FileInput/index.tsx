@@ -18,8 +18,14 @@ export const FileInput: React.FC<InputProps> = ({ onSubmit }) => {
 
 		const newFile: File | null | undefined = event.target.files?.item(0);
 		if (newFile !== null && newFile !== undefined) {
-			const fileExtension = newFile.type.split('/')[1];
-			if (fileExtension === 'csv') {
+			const fileTypeExtension = newFile.type.split('/')[1];
+			const fileNameParts = newFile.name.split('.');
+			const fileNameExtension = fileNameParts[fileNameParts.length - 1];
+			if (
+				fileTypeExtension === 'csv' ||
+				fileNameExtension === 'csv' ||
+				newFile.type.includes('ms-excel')
+			) {
 				setError(null);
 
 				reader.readAsText(newFile);
