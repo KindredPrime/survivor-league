@@ -1,5 +1,19 @@
-.input-wrapper {
+.error-text {
+	color: red;
+	font-weight: bold;
+}
+
+input[type='file'] {
+	border: 1px solid black;
+}
+
+.file-input-form {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+}
+
+.title {
+	font-size: large;
+	margin-bottom: 40px;
 }

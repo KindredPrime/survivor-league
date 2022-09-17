@@ -8,34 +8,24 @@ interface InputProps {
 export const FileInput: React.FC<InputProps> = ({ onSubmit }) => {
 	const [data, setData] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
-	const [file, setFile] = useState<File | null>(null);
 
 	const readFile = (event: React.ChangeEvent<HTMLInputElement>): void => {
 		event.preventDefault();
 
-		setFile(null);
+		setData(null);
 
 		const reader = new FileReader();
 
-		const newFiles: FileList | null = event.target.files;
-		if (newFiles !== null) {
-			const newFile: File | null = newFiles.item(0);
+		const newFile: File | null | undefined = event.target.files?.item(0);
+		if (newFile !== null && newFile !== undefined) {
+			const fileExtension = newFile.type.split('/')[1];
+			if (fileExtension === 'csv') {
+				setError(null);
 
-			if (newFile !== null) {
-				const fileExtension = newFile.type.split('/')[1];
-				if (fileExtension === 'csv') {
-					setError(null);
-					setFile(newFile);
-
-					reader.readAsText(newFile);
-				} else {
-					setError('The input file must be a csv file');
-				}
+				reader.readAsText(newFile);
 			} else {
-				setError('No file was found in the input');
+				setError('The input file must be a csv file');
 			}
-		} else {
-			setError('A file must be selected');
 		}
 
 		reader.onload = async (progressEvent) => {
@@ -62,25 +52,24 @@ export const FileInput: React.FC<InputProps> = ({ onSubmit }) => {
 
 	return (
 		<>
-			{error !== null && <p>{error}</p>}
+			<h2 className="title">Input a CSV file with the Vegas odds</h2>
 
-			<form onSubmit={handleSubmit}>
-				<div className="input-wrapper">
-					<label htmlFor="file">
-						Please input a CSV file with the Vegas odds
-					</label>
-					<input
-						id="file"
-						onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-							readFile(event)
-						}
-						required
-						type="file"
-					/>
-					<button type="submit" disabled={file === null}>
-						Generate paths
-					</button>
-				</div>
+			{error !== null && <p className="error-text">{error}</p>}
+
+			<form onSubmit={handleSubmit} className="file-input-form">
+				<input
+					className="file-input"
+					id="file"
+					onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+						readFile(event)
+					}
+					required
+					type="file"
+				/>
+				<br />
+				<button type="submit" disabled={data === null}>
+					Generate paths
+				</button>
 			</form>
 		</>
 	);
