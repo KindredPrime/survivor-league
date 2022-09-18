@@ -1,13 +1,46 @@
 import React, { useState } from 'react';
+import { Game, Week } from '../../model/Games';
 import './index.css';
 
 interface InputProps {
-	onSubmit: (data: string) => void;
+	onSubmit: (data: Week[]) => void;
 }
 
 export const FileInput: React.FC<InputProps> = ({ onSubmit }) => {
-	const [data, setData] = useState<string | null>(null);
+	const [data, setData] = useState<Week[] | null>(null);
 	const [error, setError] = useState<string | null>(null);
+
+	const parseData = (data: string): Week[] => {
+		const weeks: Week[] = [];
+
+		const rawGames: string[] = data.split('\r\n').slice(1, -1);
+		let weekIndex = -1;
+		rawGames.forEach((rawGame) => {
+			const gameDataParts: string[] = rawGame.split(',');
+			const gameNumber = parseInt(gameDataParts[0], 10);
+			const teamA = gameDataParts[1];
+			const teamB = gameDataParts[2];
+			const odds = parseInt(gameDataParts[4], 10) / 100;
+
+			const game: Game = {
+				teamA,
+				teamB,
+				odds,
+			};
+
+			if (gameNumber === 1) {
+				weekIndex++;
+
+				const week: Week = [game];
+				weeks.push(week);
+			} else {
+				const currentWeek: Week = weeks[weekIndex];
+				weeks[weekIndex] = [...currentWeek, game];
+			}
+		});
+
+		return weeks;
+	};
 
 	const readFile = (event: React.ChangeEvent<HTMLInputElement>): void => {
 		event.preventDefault();
@@ -38,7 +71,8 @@ export const FileInput: React.FC<InputProps> = ({ onSubmit }) => {
 			if (progressEvent.target !== null) {
 				const text: string | ArrayBuffer | null = progressEvent.target.result;
 				if (typeof text === 'string') {
-					setData(text);
+					const fileData = parseData(text);
+					setData(fileData);
 				} else {
 					setError('An error occurred while reading the file');
 				}
