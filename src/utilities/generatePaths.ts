@@ -35,9 +35,6 @@ interface GeneratePathsParams {
 	weekIndex?: number;
 }
 
-/*
-  Implement sorting later
-*/
 export const generatePaths = ({
 	weeks,
 	currentPath,
@@ -56,7 +53,6 @@ export const generatePaths = ({
 				winningTeams: [winner],
 			};
 
-			// Sort here
 			const newPaths: Path[] = [...generatedPaths, newPath];
 
 			if (gameIndex === weeks[weekIndex].length - 1) {
@@ -78,7 +74,6 @@ export const generatePaths = ({
 					winningTeams: [...currentPath.winningTeams, winner],
 				};
 
-				// Sort here
 				const newPaths: Path[] = [...generatedPaths, newPath];
 
 				if (gameIndex === weeks[weekIndex].length - 1) {

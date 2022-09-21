@@ -29,6 +29,9 @@ const App: React.FC = () => {
 			<FileInput
 				onSubmit={(weeks) => {
 					const newPaths: Path[] = generatePaths({ weeks });
+					newPaths.sort(
+						(pathA, pathB) => pathB.aggregateOdds - pathA.aggregateOdds
+					);
 					setAllPaths(newPaths);
 					setShowPaths(true);
 				}}
