@@ -1,3 +1,19 @@
+.Format {
+	margin-left: 40px;
+	text-align: start;
+}
+
+.Path {
+	margin-bottom: 20px;
+	text-align: start;
+}
+
+.PathsOutput {
+	margin-left: auto;
+	margin-right: auto;
+	width: 40%;
+}
+
 .Title {
 	font-size: large;
 }
