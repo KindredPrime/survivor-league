@@ -12,8 +12,3 @@ input[type='file'] {
 	flex-direction: column;
 	align-items: center;
 }
-
-.title {
-	font-size: large;
-	margin-bottom: 40px;
-}
