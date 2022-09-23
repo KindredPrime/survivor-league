@@ -2,8 +2,8 @@ import { v4 as uuid } from 'uuid';
 import { Game, Week } from '../model/Games';
 import { Path } from '../model/Paths';
 
-const gameIsValidToAddToPath = (game: Game, path: Path): boolean => {
-	return !path.winningTeams.includes(game.teamA);
+const teamIsValidToAddToPath = (team: string, path: Path): boolean => {
+	return !path.winningTeams.includes(team);
 };
 
 const getWinnerAndOdds = (
@@ -67,7 +67,7 @@ export const generatePaths = ({
 				});
 			}
 		} else {
-			if (gameIsValidToAddToPath(currentGame, currentPath)) {
+			if (teamIsValidToAddToPath(winner, currentPath)) {
 				const newPath: Path = {
 					id: uuid(),
 					aggregateOdds: currentPath.aggregateOdds * odds,
@@ -126,7 +126,7 @@ export const generatePaths = ({
 					})
 				);
 			} else {
-				if (gameIsValidToAddToPath(currentGame, currentPath)) {
+				if (teamIsValidToAddToPath(winner, currentPath)) {
 					const newPath: Path = {
 						id: uuid(),
 						aggregateOdds: currentPath.aggregateOdds * odds,
