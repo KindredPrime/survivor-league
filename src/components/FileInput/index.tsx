@@ -3,11 +3,13 @@ import { Game, Week } from '../../model/Games';
 import './index.css';
 
 interface InputProps {
+	onFileChange: () => void;
 	onSubmit: (data: Week[]) => void;
 	pathsAreShown: boolean;
 }
 
 export const FileInput: React.FC<InputProps> = ({
+	onFileChange,
 	onSubmit,
 	pathsAreShown,
 }) => {
@@ -108,9 +110,10 @@ export const FileInput: React.FC<InputProps> = ({
 				<input
 					className="file-input"
 					id="file"
-					onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-						readFile(event)
-					}
+					onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+						readFile(event);
+						onFileChange();
+					}}
 					required
 					type="file"
 				/>

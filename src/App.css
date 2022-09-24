@@ -1,4 +1,5 @@
 .App {
+	padding-bottom: 50px;
 	text-align: center;
 }
 
@@ -26,6 +27,10 @@
 
 .App-link {
 	color: #61dafb;
+}
+
+.Error-text {
+	color: red;
 }
 
 .Top-paths-wrapper {
