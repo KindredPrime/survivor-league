@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { Path } from '../../model/Paths';
+import { SurvivorContext } from '../../SurvivorContext';
 import { PathsOutput } from '../PathsOutput';
 import './index.css';
 
 export const Output: React.FC = () => {
-	const paths: Path[] = [];
+	const { allPaths } = useContext(SurvivorContext);
 
 	return (
 		<div className="Output">
@@ -13,7 +13,7 @@ export const Output: React.FC = () => {
 
 			<p className="Format">Format - {`<path of teams>: <aggregate odds>`}</p>
 
-			<PathsOutput paths={paths} />
+			<PathsOutput paths={allPaths} />
 
 			<Link to="/input">Enter another set of input</Link>
 		</div>

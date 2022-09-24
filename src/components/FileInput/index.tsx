@@ -9,7 +9,7 @@ interface InputProps {
 
 export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 	const [data, setData] = useState<Week[] | null>(null);
-	const [error, setError] = useState<string | null>(null);
+	const [fileError, setFileError] = useState<string | null>(null);
 
 	const parseData = (data: string): Week[] => {
 		const weeks: Week[] = [];
@@ -60,11 +60,11 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 				fileNameExtension === 'csv' ||
 				newFile.type.includes('ms-excel')
 			) {
-				setError(null);
+				setFileError(null);
 
 				reader.readAsText(newFile);
 			} else {
-				setError('The input file must be a csv file');
+				setFileError('The input file must be a csv file');
 			}
 		}
 
@@ -75,7 +75,7 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 					const fileData = parseData(text);
 					setData(fileData);
 				} else {
-					setError('An error occurred while reading the file');
+					setFileError('An error occurred while reading the file');
 				}
 			}
 		};
@@ -85,7 +85,7 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 		e.preventDefault();
 
 		if (data === null) {
-			setError(`Unable to generate paths: the file's data is missing`);
+			setFileError(`Unable to generate paths: the file's data is missing`);
 		} else {
 			onSubmit(data);
 		}
@@ -95,7 +95,7 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 		<>
 			<p>Input a CSV file with the Vegas odds</p>
 
-			{error !== null && <p className="error-text">{error}</p>}
+			{fileError !== null && <p className="error-text">{fileError}</p>}
 
 			<form onSubmit={handleSubmit} className="file-input-form">
 				<input

@@ -1,22 +1,39 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-// import { Path } from './model/Paths';
+import { Path } from './model/Paths';
+import { ISurvivorContext, SurvivorContext } from './SurvivorContext';
 import './App.css';
 
 const App: React.FC = () => {
-	// const [allPaths, setAllPaths] = useState<Path[]>([]);
-	const [error] = useState<string | null>(null);
-	// const [showPaths, setShowPaths] = useState(false);
+	const [allPaths, setAllPaths] = useState<Path[]>([]);
+	const [error, setError] = useState<string | null>(null);
+
+	const handleErrorUpdate = (newError: string | null): void => {
+		setError(newError);
+	};
+
+	const handlePathsUpdate = (newPaths: Path[]): void => {
+		setAllPaths(newPaths);
+	};
+
+	const contextValue: ISurvivorContext = {
+		allPaths,
+		error,
+		updateError: handleErrorUpdate,
+		updatePaths: handlePathsUpdate,
+	};
 
 	return (
 		<div className="App">
-			<header>
-				<h1>Survivor League</h1>
-			</header>
+			<SurvivorContext.Provider value={contextValue}>
+				<header>
+					<h1>Survivor League</h1>
+				</header>
 
-			{error !== null && <p className="Error-text">{error}</p>}
+				{error !== null && <p className="Error-text">{error}</p>}
 
-			<Outlet />
+				<Outlet />
+			</SurvivorContext.Provider>
 		</div>
 	);
 };
