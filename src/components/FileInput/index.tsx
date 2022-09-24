@@ -5,14 +5,9 @@ import './index.css';
 interface InputProps {
 	onFileChange: () => void;
 	onSubmit: (data: Week[]) => void;
-	pathsAreShown: boolean;
 }
 
-export const FileInput: React.FC<InputProps> = ({
-	onFileChange,
-	onSubmit,
-	pathsAreShown,
-}) => {
+export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 	const [data, setData] = useState<Week[] | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
@@ -98,11 +93,7 @@ export const FileInput: React.FC<InputProps> = ({
 
 	return (
 		<>
-			<p>
-				{pathsAreShown
-					? 'Input a new CSV file with Vegas odds to generate new output'
-					: 'Input a CSV file with the Vegas odds'}
-			</p>
+			<p>Input a CSV file with the Vegas odds</p>
 
 			{error !== null && <p className="error-text">{error}</p>}
 
