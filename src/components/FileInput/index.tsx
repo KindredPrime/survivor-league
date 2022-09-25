@@ -8,37 +8,41 @@ interface InputProps {
 }
 
 export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
-	const [data, setData] = useState<Week[] | null>(null);
 	const [fileError, setFileError] = useState<string | null>(null);
+	const [fileText, setFileText] = useState<string | null>(null);
 
-	const parseData = (data: string): Week[] => {
+	const parseFileText = (): Week[] => {
 		const weeks: Week[] = [];
 
-		const rawGames: string[] = data.split('\r\n').slice(1, -1);
-		let weekIndex = -1;
-		rawGames.forEach((rawGame) => {
-			const gameDataParts: string[] = rawGame.split(',');
-			const gameNumber = parseInt(gameDataParts[0], 10);
-			const teamA = gameDataParts[1];
-			const teamB = gameDataParts[2];
-			const odds = parseInt(gameDataParts[4], 10) / 100;
+		if (fileText !== null) {
+			const rawGames: string[] = fileText.split('\r\n').slice(1, -1);
+			let weekIndex = -1;
+			rawGames.forEach((rawGame) => {
+				const gameDataParts: string[] = rawGame.split(',');
+				const gameNumber = parseInt(gameDataParts[0], 10);
+				const teamA = gameDataParts[1];
+				const teamB = gameDataParts[2];
+				const odds = parseInt(gameDataParts[4], 10) / 100;
 
-			const game: Game = {
-				teamA,
-				teamB,
-				odds,
-			};
+				const game: Game = {
+					teamA,
+					teamB,
+					odds,
+				};
 
-			if (gameNumber === 1) {
-				weekIndex++;
+				if (gameNumber === 1) {
+					weekIndex++;
 
-				const week: Week = [game];
-				weeks.push(week);
-			} else {
-				const currentWeek: Week = weeks[weekIndex];
-				weeks[weekIndex] = [...currentWeek, game];
-			}
-		});
+					const week: Week = [game];
+					weeks.push(week);
+				} else {
+					const currentWeek: Week = weeks[weekIndex];
+					weeks[weekIndex] = [...currentWeek, game];
+				}
+			});
+		} else {
+			setFileError(`Unable to parse the file data: the file's data is missing`);
+		}
 
 		return weeks;
 	};
@@ -46,7 +50,7 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 	const readFile = (event: React.ChangeEvent<HTMLInputElement>): void => {
 		event.preventDefault();
 
-		setData(null);
+		setFileText(null);
 
 		const reader = new FileReader();
 
@@ -60,8 +64,6 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 				fileNameExtension === 'csv' ||
 				newFile.type.includes('ms-excel')
 			) {
-				setFileError(null);
-
 				reader.readAsText(newFile);
 			} else {
 				setFileError('The input file must be a csv file');
@@ -72,8 +74,7 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 			if (progressEvent.target !== null) {
 				const text: string | ArrayBuffer | null = progressEvent.target.result;
 				if (typeof text === 'string') {
-					const fileData = parseData(text);
-					setData(fileData);
+					setFileText(text);
 				} else {
 					setFileError('An error occurred while reading the file');
 				}
@@ -84,8 +85,9 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
 		e.preventDefault();
 
-		if (data === null) {
-			setFileError(`Unable to generate paths: the file's data is missing`);
+		const data: Week[] = parseFileText();
+		if (data.length === 0) {
+			setFileError('No odds or games data was found in the file');
 		} else {
 			onSubmit(data);
 		}
@@ -102,6 +104,7 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 					className="file-input"
 					id="file"
 					onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+						setFileError(null);
 						readFile(event);
 						onFileChange();
 					}}
@@ -109,8 +112,8 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 					type="file"
 				/>
 				<br />
-				<button type="submit" disabled={data === null}>
-					Generate paths
+				<button type="submit" disabled={fileText === null}>
+					Read File
 				</button>
 			</form>
 		</>
