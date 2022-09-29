@@ -4,7 +4,7 @@ import './index.css';
 
 interface InputProps {
 	onFileChange: () => void;
-	onSubmit: (data: Week[]) => void;
+	onSubmit: (weeks: Week[], teams: string[]) => void;
 }
 
 export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
@@ -82,6 +82,29 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 		};
 	};
 
+	const getTeams = (weeks: Week[]): string[] => {
+		const allTeams = new Set<string>();
+
+		weeks.forEach((week) => {
+			week.forEach((game) => {
+				const { teamA, teamB } = game;
+
+				if (!allTeams.has(teamA)) {
+					allTeams.add(teamA);
+				}
+
+				if (!allTeams.has(teamB)) {
+					allTeams.add(teamB);
+				}
+			});
+		});
+
+		const orderedTeams: string[] = Array.from(allTeams);
+		orderedTeams.sort();
+
+		return orderedTeams;
+	};
+
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
 		e.preventDefault();
 
@@ -89,7 +112,8 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 		if (data.length === 0) {
 			setFileError('No odds or games data was found in the file');
 		} else {
-			onSubmit(data);
+			const teams: string[] = getTeams(data);
+			onSubmit(data, teams);
 		}
 	};
 

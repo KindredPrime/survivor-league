@@ -28,6 +28,7 @@ const getWinnerAndOdds = (
 };
 
 interface GeneratePathsParams {
+	previouslySelectedTeams: string[];
 	weeks: Week[];
 	currentPath?: Path;
 	generatedPaths?: Path[];
@@ -36,6 +37,7 @@ interface GeneratePathsParams {
 }
 
 export const generatePaths = ({
+	previouslySelectedTeams,
 	weeks,
 	currentPath,
 	generatedPaths = [],
@@ -46,7 +48,21 @@ export const generatePaths = ({
 		const currentGame: Game = weeks[weekIndex][gameIndex];
 		const { odds, winner } = getWinnerAndOdds(currentGame);
 
-		if (currentPath === undefined) {
+		if (previouslySelectedTeams.includes(winner)) {
+			if (gameIndex < weeks[weekIndex].length - 1) {
+				// Skip to the next game
+				return generatePaths({
+					previouslySelectedTeams,
+					weeks,
+					currentPath,
+					generatedPaths,
+					gameIndex: gameIndex + 1,
+					weekIndex,
+				});
+			} else {
+				return generatedPaths;
+			}
+		} else if (currentPath === undefined) {
 			const newPath: Path = {
 				id: uuid(),
 				aggregateOdds: odds,
@@ -55,62 +71,66 @@ export const generatePaths = ({
 
 			const newPaths: Path[] = [...generatedPaths, newPath];
 
-			if (gameIndex === weeks[weekIndex].length - 1) {
-				return newPaths;
-			} else {
+			if (gameIndex < weeks[weekIndex].length - 1) {
 				return generatePaths({
+					previouslySelectedTeams,
 					weeks,
 					currentPath,
 					generatedPaths: newPaths,
 					gameIndex: gameIndex + 1,
 					weekIndex,
 				});
+			} else {
+				return newPaths;
+			}
+		} else if (teamIsValidToAddToPath(winner, currentPath)) {
+			const newPath: Path = {
+				id: uuid(),
+				aggregateOdds: currentPath.aggregateOdds * odds,
+				winningTeams: [...currentPath.winningTeams, winner],
+			};
+
+			const newPaths: Path[] = [...generatedPaths, newPath];
+
+			if (gameIndex < weeks[weekIndex].length - 1) {
+				return generatePaths({
+					previouslySelectedTeams,
+					weeks,
+					currentPath,
+					generatedPaths: newPaths,
+					gameIndex: gameIndex + 1,
+					weekIndex,
+				});
+			} else {
+				return newPaths;
 			}
 		} else {
-			if (teamIsValidToAddToPath(winner, currentPath)) {
-				const newPath: Path = {
-					id: uuid(),
-					aggregateOdds: currentPath.aggregateOdds * odds,
-					winningTeams: [...currentPath.winningTeams, winner],
-				};
-
-				const newPaths: Path[] = [...generatedPaths, newPath];
-
-				if (gameIndex === weeks[weekIndex].length - 1) {
-					return newPaths;
-				} else {
-					return generatePaths({
-						weeks,
-						currentPath,
-						generatedPaths: newPaths,
-						gameIndex: gameIndex + 1,
-						weekIndex,
-					});
-				}
+			if (gameIndex < weeks[weekIndex].length - 1) {
+				// Skip to the next game
+				return generatePaths({
+					previouslySelectedTeams,
+					weeks,
+					currentPath,
+					generatedPaths,
+					gameIndex: gameIndex + 1,
+					weekIndex,
+				});
 			} else {
-				if (gameIndex < weeks[weekIndex].length - 1) {
-					// Skip to the next game
-					return generatePaths({
-						weeks,
-						currentPath,
-						generatedPaths,
-						gameIndex: gameIndex + 1,
-						weekIndex,
-					});
-				} else {
-					return generatedPaths;
-				}
+				return generatedPaths;
 			}
 		}
 	}
 
 	if (weekIndex < weeks.length - 1) {
 		const newPaths: Path[] = [];
+
 		for (let j = gameIndex; j < weeks[weekIndex].length; j++) {
 			const currentGame: Game = weeks[weekIndex][j];
 			const { odds, winner } = getWinnerAndOdds(currentGame);
 
-			if (currentPath === undefined) {
+			if (previouslySelectedTeams.includes(winner)) {
+				continue;
+			} else if (currentPath === undefined) {
 				const newPath: Path = {
 					id: uuid(),
 					aggregateOdds: odds,
@@ -119,6 +139,23 @@ export const generatePaths = ({
 
 				newPaths.push(
 					...generatePaths({
+						previouslySelectedTeams,
+						weeks,
+						currentPath: newPath,
+						generatedPaths,
+						weekIndex: weekIndex + 1,
+					})
+				);
+			} else if (teamIsValidToAddToPath(winner, currentPath)) {
+				const newPath: Path = {
+					id: uuid(),
+					aggregateOdds: currentPath.aggregateOdds * odds,
+					winningTeams: [...currentPath.winningTeams, winner],
+				};
+
+				newPaths.push(
+					...generatePaths({
+						previouslySelectedTeams,
 						weeks,
 						currentPath: newPath,
 						generatedPaths,
@@ -126,24 +163,7 @@ export const generatePaths = ({
 					})
 				);
 			} else {
-				if (teamIsValidToAddToPath(winner, currentPath)) {
-					const newPath: Path = {
-						id: uuid(),
-						aggregateOdds: currentPath.aggregateOdds * odds,
-						winningTeams: [...currentPath.winningTeams, winner],
-					};
-
-					newPaths.push(
-						...generatePaths({
-							weeks,
-							currentPath: newPath,
-							generatedPaths,
-							weekIndex: weekIndex + 1,
-						})
-					);
-				} else {
-					continue;
-				}
+				continue;
 			}
 		}
 

@@ -8,19 +8,29 @@ import { FileInput } from '../FileInput';
 
 export const Input: React.FC = () => {
 	const { updateError, updatePaths } = useContext(SurvivorContext);
-	const [data, setData] = useState<Week[] | null>(null);
+	const [weeks, setWeeks] = useState<Week[] | null>(null);
+	const [allTeams, setAllTeams] = useState<string[]>([]);
+	const [previousTeams, setPreviousTeams] = useState<string[]>([]);
 
 	const navigate = useNavigate();
 
-	const handleFileParse = (fileData: Week[]): void => {
-		setData(fileData);
+	const handleFileParse = (fileWeeks: Week[], fileTeams: string[]): void => {
+		setWeeks(fileWeeks);
+		setAllTeams(fileTeams);
 	};
 
-	const handleSubmit = (): void => {
-		if (data !== null) {
+	const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+		e.preventDefault();
+
+		if (weeks !== null) {
 			try {
 				updatePaths([]);
-				const newPaths: Path[] = generatePaths({ weeks: data });
+				console.log('Previous Teams: ');
+				console.log(previousTeams);
+				const newPaths: Path[] = generatePaths({
+					previouslySelectedTeams: previousTeams,
+					weeks,
+				});
 				newPaths.sort(
 					(pathA, pathB) => pathB.aggregateOdds - pathA.aggregateOdds
 				);
@@ -41,17 +51,57 @@ export const Input: React.FC = () => {
 		}
 	};
 
+	const handleTeamCheck = (
+		event: React.ChangeEvent<HTMLInputElement>
+	): void => {
+		const newTeam = event.target.value;
+		const newPreviousTeams: string[] = [...previousTeams];
+
+		if (event.target.checked) {
+			newPreviousTeams.push(newTeam);
+		} else if (!event.target.checked && previousTeams.includes(newTeam)) {
+			newPreviousTeams.splice(previousTeams.indexOf(newTeam), 1);
+		}
+
+		setPreviousTeams(newPreviousTeams);
+	};
+
 	return (
 		<>
 			<FileInput
 				onFileChange={() => {
 					updateError(null);
-					setData(null);
+					setWeeks(null);
 				}}
 				onSubmit={handleFileParse}
 			/>
 
-			{data !== null && <button onClick={handleSubmit}>Generate Paths</button>}
+			{weeks !== null && (
+				<form onSubmit={(e) => handleSubmit(e)}>
+					<p>Which of these teams have you selected in previous weeks?</p>
+
+					{allTeams.map((team) => {
+						const id = `${team}-checkbox`;
+						return (
+							<div key={team}>
+								<input
+									id={id}
+									type="checkbox"
+									value={team}
+									onChange={handleTeamCheck}
+								/>
+								<label htmlFor={id}>{team}</label>
+							</div>
+						);
+					})}
+
+					<br />
+
+					<button type="submit" disabled={weeks === null}>
+						Generate Paths
+					</button>
+				</form>
+			)}
 		</>
 	);
 };
