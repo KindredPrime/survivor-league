@@ -1,5 +1,9 @@
 .Output {
+	align-items: center;
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+}
+
+.next-input {
+	margin-top: 40px;
 }

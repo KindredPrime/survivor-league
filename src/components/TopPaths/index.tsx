@@ -9,25 +9,25 @@ interface OutputProps {
 export const TopPaths: React.FC<OutputProps> = ({ paths }) => {
 	const renderPaths = (): JSX.Element => {
 		return (
-			<>
-				<p className="Format">Format - {`<path of teams>: <aggregate odds>`}</p>
+			<div>
+				<p className="format">Format - {`<path of teams>: <aggregate odds>`}</p>
 
-				<ol>
+				<ol className="paths-list">
 					{paths.slice(0, 10).map((path) => {
 						const { id, aggregateOdds, winningTeams } = path;
 						return (
-							<li key={id} className="Path">{`${winningTeams.join(
+							<li key={id} className="path">{`${winningTeams.join(
 								', '
 							)}: ${aggregateOdds}`}</li>
 						);
 					})}
 				</ol>
-			</>
+			</div>
 		);
 	};
 	return (
 		<div className="TopPaths">
-			<h2 className="Title">Top 10 Paths</h2>
+			<h2 className="title">Top 10 Paths</h2>
 
 			{paths.length > 0 ? renderPaths() : <p>No paths were generated</p>}
 		</div>

@@ -11,7 +11,9 @@ export const Output: React.FC = () => {
 		<div className="Output">
 			<TopPaths paths={allPaths} />
 
-			<Link to="/input">Enter another set of input</Link>
+			<Link className="next-input" to="/input">
+				Enter another set of input
+			</Link>
 		</div>
 	);
 };
