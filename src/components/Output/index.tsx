@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { SurvivorContext } from '../../SurvivorContext';
-import { PathsOutput } from '../PathsOutput';
+import { TopPaths } from '../TopPaths';
 import './index.css';
 
 export const Output: React.FC = () => {
@@ -9,11 +9,7 @@ export const Output: React.FC = () => {
 
 	return (
 		<div className="Output">
-			<h2 className="Title">Top 10 Paths</h2>
-
-			<p className="Format">Format - {`<path of teams>: <aggregate odds>`}</p>
-
-			<PathsOutput paths={allPaths} />
+			<TopPaths paths={allPaths} />
 
 			<Link to="/input">Enter another set of input</Link>
 		</div>
