@@ -1,3 +1,4 @@
+import { chunk } from 'lodash';
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Week } from '../../model/Games';
@@ -5,6 +6,7 @@ import { Path } from '../../model/Paths';
 import { SurvivorContext } from '../../SurvivorContext';
 import { generatePaths } from '../../utilities/generatePaths';
 import { FileInput } from '../FileInput';
+import './index.css';
 
 export const Input: React.FC = () => {
 	const { updateError, updatePaths } = useContext(SurvivorContext);
@@ -66,41 +68,65 @@ export const Input: React.FC = () => {
 		setPreviousTeams(newPreviousTeams);
 	};
 
+	const renderPreviousTeamInput = (team: string): JSX.Element => {
+		const id = `${team}-checkbox`;
+
+		return (
+			<div className="previous-team" key={team}>
+				<input
+					id={id}
+					type="checkbox"
+					value={team}
+					onChange={handleTeamCheck}
+				/>
+				<label htmlFor={id}>{team}</label>
+			</div>
+		);
+	};
+
+	const renderPreviousTeamsInputs = (): JSX.Element => {
+		const teamsGroups: string[][] = chunk(allTeams, 8);
+
+		return (
+			<div className="teams-inputs-container">
+				{teamsGroups.map((teamGroup, index) => (
+					<div className="teams-column" key={`Team Group ${index + 1}`}>
+						{teamGroup.map(renderPreviousTeamInput)}
+					</div>
+				))}
+			</div>
+		);
+	};
+
 	return (
 		<>
-			<FileInput
-				onFileChange={() => {
-					updateError(null);
-					setWeeks(null);
-				}}
-				onSubmit={handleFileParse}
-			/>
+			<div className="file-input-container">
+				<FileInput
+					onFileChange={() => {
+						updateError(null);
+						setWeeks(null);
+					}}
+					onSubmit={handleFileParse}
+				/>
+			</div>
 
 			{weeks !== null && (
-				<form onSubmit={(e) => handleSubmit(e)}>
+				<>
 					<p>Which of these teams have you selected in previous weeks?</p>
 
-					{allTeams.map((team) => {
-						const id = `${team}-checkbox`;
-						return (
-							<div key={team}>
-								<input
-									id={id}
-									type="checkbox"
-									value={team}
-									onChange={handleTeamCheck}
-								/>
-								<label htmlFor={id}>{team}</label>
-							</div>
-						);
-					})}
+					<form
+						className="previous-teams-form"
+						onSubmit={(e) => handleSubmit(e)}
+					>
+						{renderPreviousTeamsInputs()}
 
-					<br />
+						<br />
 
-					<button type="submit" disabled={weeks === null}>
-						Generate Paths
-					</button>
-				</form>
+						<button type="submit" disabled={weeks === null}>
+							Generate Paths
+						</button>
+					</form>
+				</>
 			)}
 		</>
 	);
