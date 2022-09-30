@@ -123,7 +123,7 @@ export const FileInput: React.FC<InputProps> = ({
 
 	return (
 		<>
-			<p>Input a CSV file with the Vegas odds</p>
+			<p className="instructions">Input a CSV file with the Vegas odds</p>
 
 			<input
 				className="file-input"

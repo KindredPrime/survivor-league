@@ -99,7 +99,7 @@ export const Input: React.FC = () => {
 	};
 
 	return (
-		<form className="input-form" onSubmit={handleSubmit}>
+		<form className="Input" onSubmit={handleSubmit}>
 			<div className="file-input-container">
 				<FileInput
 					onFailure={(error: string) => {

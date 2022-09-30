@@ -2,10 +2,16 @@
 	margin-bottom: 30px;
 }
 
-.input-form {
+.Input {
+	align-items: center;
+	background-color: lightblue;
+	border-radius: 5px;
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 25px;
+	width: 40%;
 }
 
 .previous-team {
@@ -29,5 +35,5 @@
 	flex-direction: row;
 	justify-content: space-around;
 	margin-bottom: 25px;
-	width: 50%;
+	width: 100%;
 }
