@@ -1,15 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Game, Week } from '../../model/Games';
 import './index.css';
 
 interface InputProps {
+	onFailure: (error: string) => void;
 	onFileChange: () => void;
-	onSubmit: (weeks: Week[], teams: string[]) => void;
+	onSuccess: (weeks: Week[], teams: string[]) => void;
 }
 
-export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
-	const [fileError, setFileError] = useState<string | null>(null);
+export const FileInput: React.FC<InputProps> = ({
+	onFailure,
+	onFileChange,
+	onSuccess,
+}) => {
 	const [fileText, setFileText] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (fileText !== null) {
+			const data: Week[] = parseFileText();
+			if (data.length === 0) {
+				onFailure('No odds or games data were found in the file');
+			} else {
+				const teams: string[] = getTeams(data);
+				onSuccess(data, teams);
+			}
+		}
+	}, [fileText]);
 
 	const parseFileText = (): Week[] => {
 		const weeks: Week[] = [];
@@ -41,7 +57,7 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 				}
 			});
 		} else {
-			setFileError(`Unable to parse the file data: the file's data is missing`);
+			onFailure(`Unable to parse the file data: the file's data is missing`);
 		}
 
 		return weeks;
@@ -66,7 +82,7 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 			) {
 				reader.readAsText(newFile);
 			} else {
-				setFileError('The input file must be a csv file');
+				onFailure('The input file must be a csv file');
 			}
 		}
 
@@ -76,7 +92,7 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 				if (typeof text === 'string') {
 					setFileText(text);
 				} else {
-					setFileError('An error occurred while reading the file');
+					onFailure('An error occurred while reading the file');
 				}
 			}
 		};
@@ -105,41 +121,20 @@ export const FileInput: React.FC<InputProps> = ({ onFileChange, onSubmit }) => {
 		return orderedTeams;
 	};
 
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
-		e.preventDefault();
-
-		const data: Week[] = parseFileText();
-		if (data.length === 0) {
-			setFileError('No odds or games data was found in the file');
-		} else {
-			const teams: string[] = getTeams(data);
-			onSubmit(data, teams);
-		}
-	};
-
 	return (
 		<>
 			<p>Input a CSV file with the Vegas odds</p>
 
-			{fileError !== null && <p className="error-text">{fileError}</p>}
-
-			<form onSubmit={handleSubmit} className="file-input-form">
-				<input
-					className="file-input"
-					id="file"
-					onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-						setFileError(null);
-						readFile(event);
-						onFileChange();
-					}}
-					required
-					type="file"
-				/>
-				<br />
-				<button type="submit" disabled={fileText === null}>
-					Read File
-				</button>
-			</form>
+			<input
+				className="file-input"
+				id="file"
+				onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+					onFileChange();
+					readFile(event);
+				}}
+				required
+				type="file"
+			/>
 		</>
 	);
 };

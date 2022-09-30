@@ -99,35 +99,33 @@ export const Input: React.FC = () => {
 	};
 
 	return (
-		<>
+		<form className="input-form" onSubmit={handleSubmit}>
 			<div className="file-input-container">
 				<FileInput
+					onFailure={(error: string) => {
+						updateError(error);
+					}}
 					onFileChange={() => {
 						updateError(null);
 						setWeeks(null);
 					}}
-					onSubmit={handleFileParse}
+					onSuccess={handleFileParse}
 				/>
 			</div>
 
 			{weeks !== null && (
 				<>
-					<p>Which of these teams have you selected in previous weeks?</p>
+					<p className="previous-teams-text">
+						Which of these teams have you selected in previous weeks?
+					</p>
 
-					<form
-						className="previous-teams-form"
-						onSubmit={(e) => handleSubmit(e)}
-					>
-						{renderPreviousTeamsInputs()}
-
-						<br />
-
-						<button type="submit" disabled={weeks === null}>
-							Generate Paths
-						</button>
-					</form>
+					{renderPreviousTeamsInputs()}
 				</>
 			)}
-		</>
+
+			<button type="submit" disabled={weeks === null}>
+				Generate Paths
+			</button>
+		</form>
 	);
 };
